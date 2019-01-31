@@ -112,6 +112,7 @@ class Scraper:
         extension = {
             'image/png': '.png',
             'image/jpeg': '.jpg',
+            'video/quicktime': '.mov',
             'application/unknown': '',
         }[content_type]
 
