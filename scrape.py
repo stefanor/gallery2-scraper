@@ -101,6 +101,7 @@ class Scraper:
             'owner': 'DebConf',
             'url': main_url,
         })
+        print()
 
     def slug(self, string):
         slug = re.sub(r'[^A-Za-z0-9 ]*', '', string)
