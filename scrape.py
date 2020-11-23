@@ -3,6 +3,8 @@
 # Licensed under the ISC license.
 
 import argparse
+import cgi
+import os.path
 import re
 import sys
 from pathlib import Path
@@ -101,6 +103,7 @@ class Scraper:
             'owner': 'DebConf',
             'url': main_url,
         })
+        print()
 
     def slug(self, string):
         slug = re.sub(r'[^A-Za-z0-9 ]*', '', string)
@@ -158,9 +161,18 @@ class Scraper:
         extension = {
             'image/png': '.png',
             'image/jpeg': '.jpg',
+            'video/mpeg': '.mpg',
             'video/quicktime': '.mov',
+            'video/x-msvideo': '.avi',
             'application/unknown': '',
-        }[content_type]
+        }.get(content_type)
+        if extension is None and 'Content-Disposition' in r.headers:
+            disp, params = cgi.parse_header(r.headers['Content-Disposition'])
+            if 'filename' in params:
+                extension = os.path.splitext(params['filename'])[1]
+                sys.stderr.write('%s: no known extension for content-type %s, using %s\n' % (dl_url, content_type, extension))
+        if extension is None:
+            raise Exception("Missing extension for content-type %s (%s)" % (content_type, dl_url))
 
         fn = path / (basename + extension)
         with fn.open('wb') as f:
